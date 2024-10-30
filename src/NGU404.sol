@@ -363,6 +363,14 @@ function getOwnerOfId(uint256 id_) public view virtual returns (address) {
         return true;
     }
 
+    /// @notice - Need to work on this function. Something weird with the permissions and msg.sender.
+    function stakeMultipleNFTs(uint256[] memory ids_) public virtual returns (bool) {
+        for (uint256 i = 0; i < ids_.length; i++) {
+            stakeNFT(ids_[i]);
+        }
+        return true;
+    }
+
     function unstakeNFT(uint256 id_) public virtual returns (bool) {
         // Ensure the caller is the owner of the staked NFT
         address owner = _getOwnerOfStakedId(id_);
@@ -391,6 +399,13 @@ function getOwnerOfId(uint256 id_) public view virtual returns (address) {
         return true;
     }
 
+/// @notice - Need to work on this function. Something weird with the permissions and msg.sender. 
+    // function unstakeMultipleNFTs(uint256[] memory ids_) public virtual returns (bool) {
+    //     for (uint256 i = 0; i < ids_.length; i++) {
+    //         unstakeNFT(ids_[i]);
+    //     }
+    //     return true;
+    // }
     /// @notice - Approvals for ERC20 balance management.
     /// in the previous version of ERC404, this function was used for 721 and 20 approvals.
     /// we don't delegte 721 approvals in this contract.

@@ -138,7 +138,7 @@ contract NumberGoUpTest is Test {
       }
    }
 
-   function test_TransferERC721TokensBetweenExemptAddresses() public {
+   function test_TransferTokensBetweenExemptAddresses() public {
       vm.prank(owner);
       numberGoUp.setERC721TransferExempt(rob, true);
       vm.prank(owner);
@@ -161,4 +161,89 @@ contract NumberGoUpTest is Test {
       assertEq(numberGoUp.erc20BalanceOf(rob), 1 * (10 ** decimals));
    }
 
+   function test_TransferTokensBetweenNonExemptAddresses() public {
+      vm.prank(owner);
+      numberGoUp.transfer(sara, 5);
+      assertEq(numberGoUp.erc721BalanceOf(sara), 5);
+      assertEq(numberGoUp.getQueueLength(sara), 5);
+      assertEq(numberGoUp.erc20BalanceOf(sara), 5 * (10 ** decimals));
+
+      vm.prank(sara);
+      numberGoUp.transfer(rob, 2);
+      assertEq(numberGoUp.erc721BalanceOf(sara), 3);
+      assertEq(numberGoUp.getQueueLength(sara), 3);
+      assertEq(numberGoUp.erc20BalanceOf(sara), 3 * (10 ** decimals));
+
+      assertEq(numberGoUp.erc721BalanceOf(rob), 2);
+      assertEq(numberGoUp.getQueueLength(rob), 2);
+      assertEq(numberGoUp.erc20BalanceOf(rob), 2 * (10 ** decimals));
+   }
+
+   function test_reorderQueueWithRestake() public {
+      vm.prank(owner);
+      numberGoUp.transfer(sara, 5);
+      assertEq(numberGoUp.erc721BalanceOf(sara), 5);
+      assertEq(numberGoUp.getQueueLength(sara), 5);
+
+      vm.prank(sara);
+      numberGoUp.stakeNFT(1);
+      console.log('Saras queue after stakeNFT 1:');
+      assertEq(numberGoUp.getQueueLength(sara), 4);
+      uint256 queueLength = numberGoUp.getQueueLength(sara);
+      for (uint256 i = 0; i < queueLength; i++) {
+         uint256 tokenId = numberGoUp.getIdAtQueueIndex(sara, uint128(i));
+         console.log("Token ID at index", i, ":", tokenId);
+      }
+
+      vm.prank(owner);
+      numberGoUp.transfer(sara, 1);
+      assertEq(numberGoUp.erc721BalanceOf(sara), 6); // This is 6 since ERC721BalanceOf includes staked tokens.
+      assertEq(numberGoUp.getQueueLength(sara), 5);
+      console.log('Saras queue after buy new token:');
+      queueLength = numberGoUp.getQueueLength(sara);
+      for (uint256 i = 0; i < queueLength; i++) {
+         uint256 tokenId = numberGoUp.getIdAtQueueIndex(sara, uint128(i));
+         console.log("Token ID at index", i, ":", tokenId);
+      }
+
+      vm.prank(sara);
+      numberGoUp.unstakeNFT(1);
+      assertEq(numberGoUp.erc721BalanceOf(sara), 6);
+      assertEq(numberGoUp.getQueueLength(sara), 6);
+      assertEq(numberGoUp.getIdAtQueueIndex(sara, 5), 1);
+      console.log('Saras queue after unstake 1:');
+      queueLength = numberGoUp.getQueueLength(sara);
+      for (uint256 i = 0; i < queueLength; i++) {
+         uint256 tokenId = numberGoUp.getIdAtQueueIndex(sara, uint128(i));
+         console.log("Token ID at index", i, ":", tokenId);
+      }
+   }
+
+   function test_stakeMultipleNFTs() public {
+      vm.prank(owner);
+      numberGoUp.transfer(sara, 5);
+      assertEq(numberGoUp.ownerOf(1), sara);
+      assertEq(numberGoUp.ownerOf(2), sara);
+      assertEq(numberGoUp.ownerOf(3), sara);
+      assertEq(numberGoUp.ownerOf(4), sara);
+      assertEq(numberGoUp.ownerOf(5), sara);
+      
+      uint256[] memory idsToStake = new uint256[](5);
+      idsToStake[0] = 1;
+      idsToStake[1] = 2;
+      idsToStake[2] = 3;
+      idsToStake[3] = 4;
+      
+      vm.prank(sara);
+      numberGoUp.stakeMultipleNFTs(idsToStake);
+
+      assertEq(numberGoUp.erc721BalanceOf(sara), 5);
+      assertEq(numberGoUp.getQueueLength(sara), 1);
+      uint256[] memory stakedIds = numberGoUp.getStakedTokens(sara);
+      console.log("Staked token IDs:");
+      for (uint256 i = 0; i < stakedIds.length; i++) {
+          console.log("Token ID at index", i, ":", stakedIds[i]);
+      }
+      // assertEq(numberGoUp.getStakedTokenIds(sara), idsToStake);
+   }
 }
