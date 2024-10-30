@@ -25,6 +25,8 @@ interface INGU404 is IERC165 {
   error OwnedIndexOverflow();
   error MintLimitReached();
   error InvalidExemption();
+  error QueueEmpty();
+  error NotOwner();
 
 
     // ERC721 Functions

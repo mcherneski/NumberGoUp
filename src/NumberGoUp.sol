@@ -4,9 +4,9 @@ pragma solidity ^0.8.20;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {NGU404} from "./NGU404.sol";
-import {ERC404UniswapV3Exempt} from "./extensions/ERC404UniswapV3Exempt.sol";
-
-contract NumberGoUp is Ownable, NGU404, ERC404UniswapV3Exempt {
+// import {ERC404UniswapV3Exempt} from "./extensions/ERC404UniswapV3Exempt.sol";
+//  ERC404UniswapV3Exempt
+contract NumberGoUp is Ownable, NGU404 {
     string public _uriBase = "https://ipfs.io/ipfs/QmUMUSjDwvMqgbPneHnvpQAt8cEBDEDgDZUyYM93qazLga/";
     uint256 public constant variants = 5;
     using Strings for uint256;
@@ -17,16 +17,14 @@ contract NumberGoUp is Ownable, NGU404, ERC404UniswapV3Exempt {
         uint8 decimals_,
         uint256 maxTotalSupply_,
         address initialOwner_,
-        address initialMintRecipient_,
-        address uniswapSwapRouter_,
-        address uniswapV3NonfungiblePositionManager_
+        address initialMintRecipient_
     )
         NGU404(name_, symbol_, decimals_)
         Ownable(initialOwner_)
-        ERC404UniswapV3Exempt(
-            uniswapSwapRouter_,
-            uniswapV3NonfungiblePositionManager_
-        )
+        // ERC404UniswapV3Exempt(
+        //     uniswapSwapRouter_,
+        //     uniswapV3NonfungiblePositionManager_
+        // )
     {
         // Do not mint 721s to initial owner
         _setERC721TransferExempt(initialMintRecipient_, true);
@@ -57,7 +55,7 @@ contract NumberGoUp is Ownable, NGU404, ERC404UniswapV3Exempt {
         string memory dString = d.toString();
         return string(abi.encodePacked(_uriBase, dString, ".json"));
     }
-
+    
     function setERC721TransferExempt(
         address account_,
         bool value_

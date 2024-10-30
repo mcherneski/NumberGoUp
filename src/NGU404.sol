@@ -142,11 +142,20 @@ abstract contract NGU404 is INGU404 {
         uint256 tokenId;
         if (from_ != address(0)) {
             // If this is not a mint.
+            // Check if the sender is the owner of the token - May have to do this elsewhere because of dynamic ID
+            // require(_getOwnerOf(id_) == from_, "NGU404: transfer of token that is not own");
+
             // Pop from the sender's selling queue
-            if (id_ == 0){
+            if (id_ == 0) {
+                if (_sellingQueue[from_].empty()) {
+                    revert QueueEmpty();
+                }
                 tokenId = _sellingQueue[from_].popFront();
             } else {
                 tokenId = id_;
+            }
+            if (_getOwnerOf(tokenId) != from_) {
+                revert NotOwner();
             }
             // Remove from from_'s _owned array.
             removeOwnedById(from_, tokenId);
@@ -170,7 +179,6 @@ abstract contract NGU404 is INGU404 {
         } else {
             // If this is a burn
             // Front of queue already popped in the _withdrawAndBurn721 function.
-            /// @dev - TODO: Test this function with and without the _setOwnerOf function.
             // Set owner to 0x0 in the ownedData mapping
             _setOwnerOf(tokenId, address(0));
             // delete the token from the ownedData mapping.
@@ -266,21 +274,20 @@ abstract contract NGU404 is INGU404 {
 
         return true;
     }
-/// @dev - TODO:
-/// Create a good function to call for when I want to get the count of items in queue
-   //  function getNextQueueId(
-   //      address owner_
-   //  ) public view virtual returns (uint256) {
-   //      return _sellingQueue[owner_].front();
-   //  }
+/// @notice - Gets the next ID in the selling queue
+    function getNextQueueId(
+        address owner_
+    ) public view virtual returns (uint256) {
+        return _sellingQueue[owner_].front();
+    }
 
-// /// @notice - This is the function we will use to get N items from the queue. Iterate over this for indices 0 to n - 1.
-//     function getIdAtQueueIndex(
-//         address owner_,
-//         uint128 index_
-//     ) public view virtual returns (uint256) {
-//         return _sellingQueue[owner_].at(index_);
-//     }
+/// @notice - This is the function we will use to get N items from the queue. Iterate over this for indices 0 to n - 1.
+    function getIdAtQueueIndex(
+        address owner_,
+        uint128 index_
+    ) public view virtual returns (uint256) {
+        return _sellingQueue[owner_].at(index_);
+    }
 
 function removeItemFromQueueById(address owner_, uint256 id_) public {
     _sellingQueue[owner_].removeById(id_);
@@ -290,14 +297,16 @@ function getQueueLength(address owner_) public view virtual returns (uint256) {
     return _sellingQueue[owner_].size();
 }
 
+function getOwnerOfId(uint256 id_) public view virtual returns (address) {
+    return _getOwnerOf(id_);
+}
+
 /// @notice - This does what is intended above but it's mostly in the smart contract. Secondary implementation option.
 /// @notice - Refactor this trash.
     function getERC721TokensInQueue(
         address owner_,
         uint256 count_
     ) public view virtual returns (uint256[] memory) {
-        // We are creating a new count variable so we can do logic checks.
-
         require(!_sellingQueue[owner_].empty(), "Selling queue is empty");
 
         uint256 count;
@@ -333,6 +342,8 @@ function getQueueLength(address owner_) public view virtual returns (uint256) {
     function stakeNFT(uint256 id_) public virtual returns (bool) {
         // Ensure the caller is the owner of the NFT
         require(_getOwnerOf(id_) == msg.sender, "Caller is not the owner");
+        require(msg.sender != address(0), "Invalid sender");
+        require(erc721TransferExempt(msg.sender) == false, "Sender is exempt from ERC-721 staking");
         require(erc721BalanceOf(msg.sender) > 0, "No NFTs to stake");
         require(balanceOf[msg.sender] >= units, "Insufficient ERC20 balance to stake");
 
@@ -352,7 +363,7 @@ function getQueueLength(address owner_) public view virtual returns (uint256) {
         return true;
     }
 
-    function unStakeNFT(uint256 id_) public virtual returns (bool) {
+    function unstakeNFT(uint256 id_) public virtual returns (bool) {
         // Ensure the caller is the owner of the staked NFT
         address owner = _getOwnerOfStakedId(id_);
         require(owner == msg.sender, "Only owner can unstake.");
@@ -492,9 +503,9 @@ function getQueueLength(address owner_) public view virtual returns (uint256) {
             revert InvalidRecipient();
         }
         require(balanceOf[msg.sender] >= value_, "Insufficient balance");
-
+        uint256 value = value_ * units;
         // Transferring ERC-20s directly requires the _transferERC20WithERC721 function
-        return _transferERC20WithERC721(msg.sender, to_, value_);
+        return _transferERC20WithERC721(msg.sender, to_, value);
     }
 
     // /// @dev - Maybe this is where we transfer ERC-721 tokens?? If we don't have an ID encoding prefix, it's hard
