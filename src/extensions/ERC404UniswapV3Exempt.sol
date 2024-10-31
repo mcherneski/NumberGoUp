@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {NGU404} from "../NGU404.sol";
-import {IPeripheryImmutableState} from "@uniswap/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol";
+// import {IPeripheryImmutableState} from "@uniswap/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol";
 /// @notice - I've commented out the factory and router requirements because they're not working with local tests.
 /// Need to figure out why.
 
@@ -57,8 +57,8 @@ abstract contract ERC404UniswapV3Exempt is NGU404 {
     //     feeTiers[i]
     //   );
 
-    //   // Set the Uniswap v3 pair as exempt.
-    //   _setERC721TransferExempt(uniswapV3Pair, true);
+      // Set the Uniswap v3 pair as exempt.
+      // _setERC721TransferExempt(uniswapV3Pair, true);
 
     //   unchecked {
     //     ++i;

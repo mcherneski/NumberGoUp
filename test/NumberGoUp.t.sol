@@ -1,12 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+// import "@uniswap/v3-periphery/contracts/SwapRouter.sol";
+// import "@uniswap/v3-periphery/contracts/NonfungiblePositionManager.sol";
+// import "@uniswap/v3-core/contracts/UniswapV3Factory.sol";
+
 import {Test} from "forge-std/Test.sol";
 import {NumberGoUp} from "../src/NumberGoUp.sol";
 import {console} from "forge-std/console.sol";
 
 contract NumberGoUpTest is Test {
 
+   // UniswapV3Factory public factory = new UniswapV3Factory();
+   // SwapRouter public swapRouter = new SwapRouter(address(factory));
+   // NonfungiblePositionManager public positionManager = new NonfungiblePositionManager(address(factory), address(swapRouter));
+
+   
    NumberGoUp public numberGoUp;
 
    address public owner = makeAddr("owner");
@@ -25,9 +34,9 @@ contract NumberGoUpTest is Test {
          decimals,
          maxTotalSupply,
          owner,
-         owner, 
-         uniswapSwapRouter,
-         uniswapV3NonfungiblePositionManager
+         owner
+         // address(swapRouter),
+         // address(positionManager)
       );
    }
 
@@ -227,31 +236,52 @@ contract NumberGoUpTest is Test {
       }
    }
 
-   // function test_stakeMultipleNFTs() public {
-   //    vm.prank(owner);
-   //    numberGoUp.transfer(sara, 5);
-   //    assertEq(numberGoUp.ownerOf(1), sara);
-   //    assertEq(numberGoUp.ownerOf(2), sara);
-   //    assertEq(numberGoUp.ownerOf(3), sara);
-   //    assertEq(numberGoUp.ownerOf(4), sara);
-   //    assertEq(numberGoUp.ownerOf(5), sara);
-      
-   //    uint256[] memory idsToStake = new uint256[](5);
-   //    idsToStake[0] = 1;
-   //    idsToStake[1] = 2;
-   //    idsToStake[2] = 3;
-   //    idsToStake[3] = 4;
+   function test_getTokensInQueue() public {
+      vm.prank(owner);
+      numberGoUp.transfer(sara, 5);
+      assertEq(numberGoUp.erc721BalanceOf(sara), 5);
+      assertEq(numberGoUp.getQueueLength(sara), 5);
 
-   //    vm.prank(sara);
-   //    numberGoUp.stakeMultipleNFTs(idsToStake);
+      uint256[] memory tokensInQueue = numberGoUp.getERC721TokensInQueue(sara, 10);
+      console.log("Tokens in queue:");
+      for (uint256 i = 0; i < tokensInQueue.length; i++) {
+         console.log("Token ID at index", i, ":", tokensInQueue[i]);
+      }
+   }
 
-   //    assertEq(numberGoUp.erc721BalanceOf(sara), 5);
-   //    assertEq(numberGoUp.getQueueLength(sara), 1);
-   //    uint256[] memory stakedIds = numberGoUp.getStakedTokens(sara);
-   //    console.log("Staked token IDs:");
-   //    for (uint256 i = 0; i < stakedIds.length; i++) {
-   //        console.log("Token ID at index", i, ":", stakedIds[i]);
-   //    }
-   //    // assertEq(numberGoUp.getStakedTokenIds(sara), idsToStake);
-   // }
+   /// New Test Functions Below
+
+   function test_mintERC20Tokens() public {
+      uint256 initialBalance = numberGoUp.erc20BalanceOf(owner);
+      vm.prank(owner);
+      numberGoUp.transfer(sara, 10);
+      assertEq(numberGoUp.erc20BalanceOf(sara), 10 * (10 ** decimals));
+      assertEq(numberGoUp.erc20BalanceOf(owner), initialBalance - 10 * (10 ** decimals));
+   }
+
+   function test_mintERC721Tokens() public {
+      vm.prank(owner);
+      numberGoUp.transfer(sara, 5);
+      assertEq(numberGoUp.erc721BalanceOf(sara), 5);
+      assertEq(numberGoUp.getQueueLength(sara), 5);
+   }
+
+   function test_tokenURI() public {
+      vm.prank(owner);
+      numberGoUp.transfer(sara, 1);
+      uint256 tokenId = numberGoUp.getIdAtQueueIndex(sara, 0);
+      string memory uri = numberGoUp.tokenURI(tokenId);
+      console.log("Token URI:", uri);
+      assert(bytes(uri).length > 0);
+   }
+
+   function test_setAndCheckERC721TransferExempt() public {
+      vm.prank(owner);
+      numberGoUp.setERC721TransferExempt(sara, true);
+      assertTrue(numberGoUp.erc721TransferExempt(sara), "Sara should be exempt from ERC-721 transfers");
+
+      vm.prank(owner);
+      numberGoUp.setERC721TransferExempt(sara, false);
+      assertFalse(numberGoUp.erc721TransferExempt(sara), "Sara should not be exempt from ERC-721 transfers");
+   }
 }
