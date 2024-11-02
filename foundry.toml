@@ -1,6 +1,31 @@
 [profile.default]
-src = "src"
-out = "out"
-libs = ["lib"]
+solc_version = "0.8.20"
+optimizer = true
+optimizer_runs = 200
+fs_permissions = [{ access = "read", path = "./"}]
+ffi = true
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+[profile.default.optimizer_details]
+yul = false
+
+[profile.v3_periphery]
+src = "lib/v3-periphery/contracts"
+solc_version = "0.7.6"
+optimizer = true
+optimizer_runs = 200
+remappings = [
+    '@uniswap/v3-periphery/=lib/v3-periphery/',
+    '@uniswap/v3-core/=lib/v3-core/',
+    '@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/'
+]
+
+[profile.v3_core]
+src = "lib/v3-core/contracts"
+solc_version = "0.7.6"
+optimizer = true
+optimizer_runs = 200
+remappings = [
+    '@uniswap/v3-periphery/=lib/v3-periphery/',
+    '@uniswap/v3-core/=lib/v3-core/',
+    '@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/'
+]

@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 import {INGU404} from "./interfaces/INGU404.sol";
 import {ERC721Events} from "./lib/ERC721Events.sol";
-import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
+import {IERC165} from "lib/openzeppelin-contracts/contracts/introspection/IERC165.sol";
 import {ERC20Events} from "./lib/ERC20Events.sol";
-import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
+import {IERC721Receiver} from "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 // import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "./lib/DoubleEndedQueue.sol";
