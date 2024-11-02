@@ -4,6 +4,11 @@ pragma solidity ^0.8.20;
 // import "@uniswap/v3-periphery/contracts/SwapRouter.sol";
 // import "@uniswap/v3-periphery/contracts/NonfungiblePositionManager.sol";
 // import "@uniswap/v3-core/contracts/UniswapV3Factory.sol";
+import {SwapRouter} from "v3-periphery/SwapRouter.sol";
+import {NonfungiblePositionManager} from "v3-periphery/NonfungiblePositionManager.sol";
+import {Test} from "forge-std/Test.sol";
+import {NumberGoUp} from "../src/NumberGoUp.sol";
+
 
 import {Test} from "forge-std/Test.sol";
 import {NumberGoUp} from "../src/NumberGoUp.sol";
@@ -11,23 +16,26 @@ import {console} from "forge-std/console.sol";
 
 contract NumberGoUpTest is Test {
 
-   // UniswapV3Factory public factory = new UniswapV3Factory();
-   // SwapRouter public swapRouter = new SwapRouter(address(factory));
-   // NonfungiblePositionManager public positionManager = new NonfungiblePositionManager(address(factory), address(swapRouter));
-
+   SwapRouter public swapRouter;
+   NonfungiblePositionManager public positionManager;
+   MockTokenDescriptor public tokenDescriptor;
    
    NumberGoUp public numberGoUp;
 
    address public owner = makeAddr("owner");
    address public sara = makeAddr("sara");
    address public rob = makeAddr("rob");
-   address public uniswapSwapRouter = makeAddr("uniswapSwapRouter");
-   address public uniswapV3NonfungiblePositionManager = makeAddr("uniswapV3NonfungiblePositionManager");
 
    uint8 public constant decimals = 18;
    uint256 public constant maxTotalSupply = 10000;
 
    function setUp() public {
+
+      factory = new UniswapV3Factory();
+      swapRouter = new SwapRouter(address(address(factory), address(weth)));
+      tokenDescriptor = new MockTokenDescriptor();
+      positionManager = new NonfungiblePositionManager(address(factory), address(swapRouter), address(tokenDescriptor));
+
       numberGoUp = new NumberGoUp(
          "Number Go Up",
          "NGU",
@@ -35,8 +43,8 @@ contract NumberGoUpTest is Test {
          maxTotalSupply,
          owner,
          owner
-         // address(swapRouter),
-         // address(positionManager)
+         address(swapRouter),
+         address(positionManager)
       );
    }
 
