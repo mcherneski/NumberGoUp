@@ -5,6 +5,8 @@ optimizer_runs = 200
 fs_permissions = [{ access = "read", path = "./"}]
 ffi = true
 
+extra_solc_versions = ["0.7.5", "0.7.6"]
+
 [profile.default.optimizer_details]
 yul = false
 
