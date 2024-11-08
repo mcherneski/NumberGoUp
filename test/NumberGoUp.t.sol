@@ -42,7 +42,7 @@ contract NumberGoUpTest is Test {
          decimals,
          maxTotalSupply,
          owner,
-         owner
+         owner,
          address(swapRouter),
          address(positionManager)
       );
@@ -55,10 +55,9 @@ contract NumberGoUpTest is Test {
       assertEq(numberGoUp.totalSupply(), maxTotalSupply * 10 ** decimals);
       assertTrue(numberGoUp.erc721TransferExempt(owner));
 
-
       console.log("Owner:", owner);
       console.log("Sara:", sara);
-   console.log("Rob:", rob);
+      console.log("Rob:", rob);
    }
 
    function test_transferThreeTokensToSara() public {
