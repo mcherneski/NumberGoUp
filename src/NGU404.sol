@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.0;
 
 import {INGU404} from "./interfaces/INGU404.sol";
 import {ERC721Events} from "./lib/ERC721Events.sol";

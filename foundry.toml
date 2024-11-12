@@ -4,36 +4,10 @@ optimizer = true
 optimizer_runs = 200
 fs_permissions = [{ access = "read", path = "./"}]
 ffi = true
-auto_detect_solc = true
 extra_solc_versions = ["0.7.5", "0.7.6"]
 
-[profile.default.optimizer_details]
-yul = false
+# Specify additional compiler versions
+[profile.default.solc_versions]
+"0.8.0" = true
+"0.8.20" = true
 
-    [profile.v3_periphery]
-    src = "lib/v3-periphery/contracts"
-    solc_version = "0.7.6"
-    optimizer = true
-    optimizer_runs = 200
-    remappings = [
-        '@uniswap/v3-periphery/=lib/v3-periphery/',
-        '@uniswap/v3-core/=lib/v3-core/',
-        '@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/'
-    ]
-
-[profile.openzeppelin_contracts]
-src = "lib/openzeppelin-contracts/contracts"
-solc_version = "0.8.20"
-optimizer = true
-optimizer_runs = 200
-
-[profile.v3_core]
-src = "lib/v3-core/contracts"
-solc_version = "0.7.6"
-optimizer = true
-optimizer_runs = 200
-remappings = [
-    '@uniswap/v3-periphery/=lib/v3-periphery/',
-    '@uniswap/v3-core/=lib/v3-core/',
-    '@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/'
-]
